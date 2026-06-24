@@ -19,8 +19,10 @@ app.use(
 );
 app.use(cookieParser());
 const userRoutes = require("./routes/user.route.js");
+const movieRouter = require("./routes/movie.route.js");
 app.use(express.json());
 app.use("/api/auth", userRoutes);
+app.use("/api/movie", movieRouter);
 
 app.listen(8000, () => {
   console.log("Server started");
