@@ -1,15 +1,59 @@
 import React from "react";
-import { Modal, Form, Row, Col, Input, Select, Button } from "antd";
+import { Modal, Form, Row, Col, Input, Select, Button, message } from "antd";
 import TextArea from "antd/es/input/TextArea";
+import { addMovie, updateMovie } from "../../calls/movieCalls.js";
 
-function MovieForm({ isModalOpen, setIsModalOpen }) {
+function MovieForm({
+  isModalOpen,
+  setIsModalOpen,
+  formType,
+  selectedMovie,
+  setSelectedMovie,
+}) {
+  const onFinish = async (values) => {
+    if (formType == "add") {
+      try {
+        const respone = await addMovie(values);
+        console.log(respone);
+        if (respone.success) {
+          message.success(respone.message);
+        } else {
+          message.error(respone.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const respone = await updateMovie({
+          ...values,
+          movieId: selectedMovie._id,
+        });
+
+        console.log(respone);
+        if (respone.success) {
+          message.success(respone.message);
+        } else {
+          message.error(respone.message);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   const handleCancel = () => {
     setIsModalOpen(false);
   };
 
   return (
     <Modal open={isModalOpen} width={800} onCancel={handleCancel}>
-      <Form layout="vertical" style={{ width: "100%" }}>
+      <Form
+        initialValues={selectedMovie}
+        layout="vertical"
+        style={{ width: "100%" }}
+        onFinish={onFinish}
+      >
         <Row
           gutter={{
             xs: 6,
@@ -89,6 +133,7 @@ function MovieForm({ isModalOpen, setIsModalOpen }) {
                     defaultValue="Select Language"
                     style={{ width: "100%", height: "45px" }}
                     options={[
+                      { value: "Kannad", label: "Kannada" },
                       { value: "English", label: "English" },
                       { value: "Hindi", label: "Hindi" },
                       { value: "Punjabi", label: "Punjabi" },
@@ -158,9 +203,9 @@ function MovieForm({ isModalOpen, setIsModalOpen }) {
               </Col>
               <Col span={16}>
                 <Form.Item
-                  label="Poster  URL"
-                  htmlFor="poster"
-                  name="poster"
+                  label="posterPath"
+                  htmlFor="posterPath"
+                  name="posterPath"
                   className="d-block"
                   rules={[
                     { required: true, message: "Movie Poster  is required!" },
@@ -176,6 +221,19 @@ function MovieForm({ isModalOpen, setIsModalOpen }) {
             </Row>
           </Col>
         </Row>
+        <Form.Item>
+          <Button
+            block
+            type="primary"
+            htmlType="submit"
+            style={{ fontSize: "1rem", fontWeight: "600" }}
+          >
+            Submit the Data
+          </Button>
+          <Button className="mt-3" block>
+            Cancel
+          </Button>
+        </Form.Item>
       </Form>
     </Modal>
   );
